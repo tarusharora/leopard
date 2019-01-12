@@ -1,0 +1,39 @@
+{
+  "name": "leopard",
+  "version": "0.0.1",
+  "private": true,
+  "description": "New Swagger API Project",
+  "keywords": [],
+  "author": "",
+  "license": "",
+  "main": "app.js",
+  "dependencies": {
+    "aws-sdk": "^2.387.0",
+    "bcrypt-nodejs": "0.0.3",
+    "express": "^4.16.4",
+    "express-jwt": "^5.3.1",
+    "handlebars": "^4.0.12",
+    "jsonwebtoken": "^8.4.0",
+    "lodash": "^4.17.11",
+    "mongoose": "^5.4.3",
+    "nconf": "^0.10.0",
+    "nodemailer": "^5.1.1",
+    "passport": "^0.4.0",
+    "passport-local": "^1.0.0",
+    "pino": "^5.10.6",
+    "request-promise-native": "^1.0.5",
+    "swagger-express-mw": "^0.1.0",
+    "url-join": "^4.0.0"
+  },
+  "devDependencies": {
+    "eslint": "^5.3.0",
+    "eslint-config-airbnb-base": "^13.1.0",
+    "eslint-plugin-import": "^2.14.0",
+    "should": "^7.1.0",
+    "supertest": "^1.0.0"
+  },
+  "scripts": {
+    "start": "node app.js",
+    "test": "swagger project test"
+  }
+}
