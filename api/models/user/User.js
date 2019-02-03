@@ -47,7 +47,7 @@ const userSchema = new mongoose.Schema({
 
 
 // plug in stripe billing
-const isStripePaymentEnabled = nconf.get('isStripePaymentEnabled');
+const isStripePaymentEnabled = nconf.get('app.isStripePaymentEnabled');
 if (isStripePaymentEnabled) {
   const stripe = require('../stripe/Stripe');
   userSchema.plugin(stripe);

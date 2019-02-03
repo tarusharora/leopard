@@ -45,11 +45,11 @@ const userSignin = async (req, res, next) => {
 };
 
 const userSignup = async (req, res, next) => {
-  const {
-    email, password, firstName, lastName,
-  } = req.body;
   try {
-    const existingUser = await User.findOne({ email: req.body.email });
+    const {
+      email, password, firstName, lastName,
+    } = req.body;
+    const existingUser = await User.findOne({ email: email.toLowerCase() });
     if (existingUser) {
       res.status(409);
       next(new Error(USER_EXISTS));
