@@ -14,6 +14,13 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  facebookProvider: {
+    type: {
+      id: String,
+      token: String,
+    },
+    select: false,
+  },
   password: String,
   passwordResetToken: String,
   passwordResetExpires: Date,
@@ -52,6 +59,35 @@ if (isStripePaymentEnabled) {
   const stripe = require('../stripe/Stripe');
   userSchema.plugin(stripe);
 }
+
+userSchema.statics.upsertFbUser = function (accessToken, refreshToken, profile, cb) {
+  const that = this;
+  return this.findOne({
+    'facebookProvider.id': profile.id,
+  }, (err, user) => {
+    // no user was found, lets create a new one
+    if (!user) {
+      const newUser = new that({
+        fullName: profile.displayName,
+        email: profile.emails[0].value,
+        facebookProvider: {
+          id: profile.id,
+          token: accessToken,
+        },
+      });
+
+      newUser.save((error, savedUser) => {
+        if (error) {
+          console.log(error);
+        }
+        return cb(error, savedUser);
+      });
+    } else {
+      return cb(err, user);
+    }
+  });
+};
+
 
 /**
  * Password hash middleware.

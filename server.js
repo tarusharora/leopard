@@ -1,7 +1,7 @@
 
-
 const SwaggerExpress = require('swagger-express-mw');
 const app = require('express')();
+const cors = require('cors');
 
 const passport = require('./api/utils/passport');
 
@@ -10,13 +10,19 @@ module.exports = app; // for testing
 const config = {
   appRoot: __dirname, // required config
 };
+const corsOption = {
+  origin: true,
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  credentials: true,
+  exposedHeaders: ['x-auth-token'],
+};
 
 const createServer = () => SwaggerExpress.create(config, (err, swaggerExpress) => {
   if (err) { throw err; }
 
   // install middleware
   swaggerExpress.register(app);
-
+  app.use(cors(corsOption));
   app.use(passport.initialize());
 
   // function errorHandler(err, req, res, next) {
