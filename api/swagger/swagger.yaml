@@ -97,29 +97,55 @@ paths:
   /auth/facebook:
     # binds a127 app logic to a route
     x-swagger-router-controller: socialAuthController
-    post:
+    get:
       description: Enable Login using facebook
       # used as the method name of the controller
       operationId: facebookLogin
-      consumes:
-        - application/json
-      parameters:
-        - in: body
-          name: tokenBlob
-          description: The access token.
-          schema:
-            $ref: "#/definitions/SocialSigninRequest"  
+      # consumes:
+      #   - application/json
+      # parameters:
+      #   - in: body
+      #     name: tokenBlob
+      #     description: The access token.
+      #     schema:
+      #       $ref: "#/definitions/SocialSigninRequest"  
       responses:
         "200":
           description: Success
-          schema:
-            # a pointer to a definition
-            $ref: "#/definitions/SocialSigninResponse"
-        # responses may fall through to errors
-        default:
-          description: Error
-          schema:
-            $ref: "#/definitions/ErrorResponse"
+        #   schema:
+        #     # a pointer to a definition
+        #     $ref: "#/definitions/SocialSigninResponse"
+        # # responses may fall through to errors
+        # default:
+        #   description: Error
+        #   schema:
+        #     $ref: "#/definitions/ErrorResponse"
+  /auth/facebook/callback:
+    # binds a127 app logic to a route
+    x-swagger-router-controller: socialAuthController
+    get:
+      description: Enable Login using facebook
+      # used as the method name of the controller
+      operationId: facebookLoginRedirect
+      # consumes:
+      #   - application/json
+      # parameters:
+      #   - in: body
+      #     name: tokenBlob
+      #     description: The access token.
+      #     schema:
+      #       $ref: "#/definitions/SocialSigninRequest"  
+      responses:
+        "200":
+          description: Success
+        #   schema:
+        #     # a pointer to a definition
+        #     $ref: "#/definitions/SocialSigninResponse"
+        # # responses may fall through to errors
+        # default:
+        #   description: Error
+        #   schema:
+        #     $ref: "#/definitions/ErrorResponse"
   /swagger:
     x-swagger-pipe: swagger_raw
 # complex objects have schema definitions
@@ -172,7 +198,7 @@ definitions:
   SocialSigninRequest:
     properties:
       tokenBlob:
-        type: object
+        type: string
   SocialSigninResponse:
     properties:
       token:

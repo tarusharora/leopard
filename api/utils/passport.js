@@ -1,12 +1,12 @@
 const passport = require('passport');
 
 const { Strategy: LocalStrategy } = require('passport-local');
+const nconf = require('nconf');
 
-const TwitterTokenStrategy = require('passport-twitter-token');
-const FacebookTokenStrategy = require('passport-facebook-token');
-const GoogleTokenStrategy = require('passport-google-token').Strategy;
+const FacebookStrategy = require('passport-facebook').Strategy;
 const User = require('../models/user/User');
-const config = require('./socialConfig');
+
+const { clientID: fbAuthClientId, clientSecret: fbAuthClientSecret, callbackURL: fbAuthCallbackUrl } = nconf.get('keys.facebookAuth');
 
 /**
  * Sign in using Email and Password.
@@ -40,29 +40,15 @@ passport.use(new LocalStrategy({ usernameField: 'email' }, async (email, passwor
   //   });
   // });
 }));
-passport.use(new TwitterTokenStrategy({
-  consumerKey: config.twitterAuth.consumerKey,
-  consumerSecret: config.twitterAuth.consumerSecret,
-  includeEmail: true,
-},
-((token, tokenSecret, profile, done) => {
-  User.upsertTwitterUser(token, tokenSecret, profile, (err, user) => done(err, user));
-})));
 
-passport.use(new FacebookTokenStrategy({
-  clientID: config.facebookAuth.clientID,
-  clientSecret: config.facebookAuth.clientSecret,
+passport.use(new FacebookStrategy({
+  clientID: fbAuthClientId,
+  clientSecret: fbAuthClientSecret,
+  callbackURL: fbAuthCallbackUrl,
+  profileFields: ['id', 'displayName', 'photos', 'email'],
 },
-(accessToken, refreshToken, profile, done) => {
-  User.upsertFbUser(accessToken, refreshToken, profile, (err, user) => done(err, user));
-}));
-
-passport.use(new GoogleTokenStrategy({
-  clientID: config.googleAuth.clientID,
-  clientSecret: config.googleAuth.clientSecret,
-},
-((accessToken, refreshToken, profile, done) => {
-  User.upsertGoogleUser(accessToken, refreshToken, profile, (err, user) => done(err, user));
+((accessToken, refreshToken, profile, cb) => {
+  User.upsertFbUser(accessToken, refreshToken, profile, (err, user) => cb(err, user));
 })));
 
 module.exports = passport;

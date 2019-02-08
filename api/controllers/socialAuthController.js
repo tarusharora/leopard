@@ -1,23 +1,27 @@
-const express = require('express');
-const passport = require('passport');
+const passport = require('../utils/passport');
 
-const config = require('../utils/socialConfig');
-require('../utils/passport');
-const { getBearToken, sendToken } = require('../utils/jwt');
+const { getBearerToken } = require('../utils/jwt');
+const { SignInResponse } = require('../models/auth');
 
 const facebookLogin = (req, res, next) => {
+  passport.authenticate('facebook', {
+    scope: ['email'],
+    display: 'popup',
+  })(req, res, next);
+};
+
+const facebookLoginRedirect = (req, res, next) => {
   try {
-    passport.authenticate('facebook', { session: false }, (err, user) => {
-      if (!req.user) {
-        return res.send(401, 'User Not Authenticated');
-      }
-      req.auth = {
-        id: res.user.id,
-      };
-      next();
-    }, getBearToken, sendToken);
-    //     next();
-    // },  getBearerToken, sendToken);
+    passport.authenticate('facebook', {}, async (err, user) => {
+      if (err) { return next(err); }
+      const { id, email } = user;
+      const token = await getBearerToken({
+        payload: {
+          userId: id,
+        },
+      });
+      return res.send(new SignInResponse({ email, token, id }));
+    })(req, res, next);
   } catch (error) {
     throw error;
   }
@@ -25,4 +29,5 @@ const facebookLogin = (req, res, next) => {
 
 module.exports = {
   facebookLogin,
+  facebookLoginRedirect,
 };

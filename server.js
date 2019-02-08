@@ -3,7 +3,6 @@ const SwaggerExpress = require('swagger-express-mw');
 const app = require('express')();
 const cors = require('cors');
 
-const passport = require('./api/utils/passport');
 
 module.exports = app; // for testing
 
@@ -21,6 +20,7 @@ const createServer = () => SwaggerExpress.create(config, (err, swaggerExpress) =
   if (err) { throw err; }
 
   // install middleware
+  const passport = require('./api/utils/passport');
   swaggerExpress.register(app);
   app.use(cors(corsOption));
   app.use(passport.initialize());
