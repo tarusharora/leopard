@@ -2,6 +2,7 @@ const bcrypt = require('bcrypt-nodejs');
 const crypto = require('crypto');
 const mongoose = require('mongoose');
 const nconf = require('nconf');
+const { get: _get } = require('lodash');
 
 
 const userSchema = new mongoose.Schema({
@@ -13,6 +14,10 @@ const userSchema = new mongoose.Schema({
   isVerified: {
     type: Boolean,
     default: false,
+  },
+  facebookProvider: {
+    id: String,
+    token: String,
   },
   password: String,
   passwordResetToken: String,
@@ -53,6 +58,31 @@ if (isStripePaymentEnabled) {
   userSchema.plugin(stripe);
 }
 
+userSchema.statics.upsertFbUser = function (accessToken, refreshToken, profile, cb) {
+  const User = this;
+  return this.findOne({
+    'facebookProvider.id': profile.id,
+  }, (err, user) => {
+    // no user was found, lets create a new one
+    const email = _get(profile, 'emails[0].value', '');
+    if (!user && email) {
+      const newUser = new User({
+        fullName: profile.displayName,
+        email,
+        facebookProvider: {
+          id: profile.id,
+          token: accessToken,
+        },
+      });
+
+      newUser.save((error, savedUser) => cb(error, savedUser));
+    } else {
+      return cb(err, user);
+    }
+  });
+};
+
+
 /**
  * Password hash middleware.
  */
@@ -61,8 +91,8 @@ userSchema.pre('save', function save(next) {
   if (!user.isModified('password')) { return next(); }
   bcrypt.genSalt(10, (err, salt) => {
     if (err) { return next(err); }
-    bcrypt.hash(user.password, salt, null, (err, hash) => {
-      if (err) { return next(err); }
+    bcrypt.hash(user.password, salt, null, (error, hash) => {
+      if (error) { return next(error); }
       user.password = hash;
       next();
     });

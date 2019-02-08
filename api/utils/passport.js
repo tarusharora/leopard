@@ -1,8 +1,12 @@
 const passport = require('passport');
 
 const { Strategy: LocalStrategy } = require('passport-local');
+const nconf = require('nconf');
 
+const FacebookStrategy = require('passport-facebook').Strategy;
 const User = require('../models/user/User');
+
+const { clientID: fbAuthClientId, clientSecret: fbAuthClientSecret, callbackURL: fbAuthCallbackUrl } = nconf.get('keys.facebookAuth');
 
 /**
  * Sign in using Email and Password.
@@ -36,5 +40,15 @@ passport.use(new LocalStrategy({ usernameField: 'email' }, async (email, passwor
   //   });
   // });
 }));
+
+passport.use(new FacebookStrategy({
+  clientID: fbAuthClientId,
+  clientSecret: fbAuthClientSecret,
+  callbackURL: fbAuthCallbackUrl,
+  profileFields: ['id', 'displayName', 'photos', 'email'],
+},
+((accessToken, refreshToken, profile, cb) => {
+  User.upsertFbUser(accessToken, refreshToken, profile, (err, user) => cb(err, user));
+})));
 
 module.exports = passport;
