@@ -16,11 +16,8 @@ const userSchema = new mongoose.Schema({
     default: false,
   },
   facebookProvider: {
-    type: {
-      id: String,
-      token: String,
-    },
-    select: false,
+    id: String,
+    token: String,
   },
   password: String,
   passwordResetToken: String,
